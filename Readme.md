@@ -59,31 +59,37 @@ WhatTimeNextTrain/
 
 ## セットアップ手順
 
-### 1. 必要な環境
+### 🚀 自動セットアップ（推奨）
+
+**Windows環境:**
+1. PowerShellまたはコマンドプロンプトを管理者権限で開く
+2. プロジェクトディレクトリに移動
+3. `start-services.ps1` または `start-services.bat` を実行
+
+**Linux/Raspberry Pi環境:**
+1. `./setup-raspberry-pi.sh` を実行（初回のみ）
+2. `./start-services.sh start` でサービス開始
+
+### 🔧 手動セットアップ
+
+**必要な環境:**
 - **Python 3.9+**
 - **Node.js 16+** (フロントエンド開発用)
 
-### 2. バックエンドのセットアップ
+**バックエンドのセットアップ:**
 ```bash
-# プロジェクトディレクトリに移動
 cd WhatTimeNextTrain/backend
-
-# Python依存関係をインストール
+python -m venv venv                    # 仮想環境作成
+source venv/bin/activate               # Linux/Mac
+# または venv\Scripts\activate        # Windows
 pip install -r requirements.txt
-
-# サーバーを起動
 python run.py
 ```
 
-### 3. フロントエンドのセットアップ
+**フロントエンドのセットアップ:**
 ```bash
-# フロントエンドディレクトリに移動
 cd WhatTimeNextTrain/frontend
-
-# Node.js依存関係をインストール
 npm install
-
-# 開発サーバーを起動
 npm run dev
 ```
 
@@ -120,3 +126,34 @@ npm run dev
 - ✅ リアルタイム時刻表示
 - ✅ 自動データ更新（1分毎）
 - ✅ エラーハンドリング
+
+## 🚀 クイックスタート
+
+### Windows環境
+```powershell
+# PowerShellで実行（推奨）
+.\start-services.ps1
+
+# または、バッチファイルをダブルクリック
+start-services.bat
+```
+
+### Linux/Raspberry Pi環境
+```bash
+# 初回セットアップ
+chmod +x setup-raspberry-pi.sh
+./setup-raspberry-pi.sh
+
+# サービス起動
+./start-services.sh start
+```
+
+### 自動化機能
+- ✅ **ワンクリック起動** - バックエンドとフロントエンドを同時起動
+- ✅ **依存関係の自動確認** - 必要なパッケージの自動インストール
+- ✅ **サーバー状態監視** - 起動完了まで自動待機
+- ✅ **ログ管理** - 実行ログの自動保存
+- ✅ **systemdサービス対応** - Raspberry Pi起動時の自動開始
+- ✅ **エラーハンドリング** - 詳細なエラー表示と復旧手順
+
+詳細な使用方法は [STARTUP_GUIDE.md](STARTUP_GUIDE.md) を参照してください。
