@@ -1,0 +1,31 @@
+{
+  "depature": "矢切",
+  "schedules": [
+    {
+      "type": "weekday",
+      "trains": [
+        { "line": "北総線", "destination": "羽田空港", "departure_time": "6:00", "arrival_time": "6:50" },
+        { "line": "北総線", "destination": "西馬込", "departure_time": "6:15", "arrival_time": "6:45" },
+        { "line": "北総線", "destination": "羽田空港", "departure_time": "6:30", "arrival_time": "7:20" },
+        { "line": "北総線", "destination": "羽田空港", "departure_time": "7:00", "arrival_time": "7:50" },
+        { "line": "北総線", "destination": "西馬込", "departure_time": "7:15", "arrival_time": "7:45" },
+        { "line": "北総線", "destination": "羽田空港", "departure_time": "7:30", "arrival_time": "8:20" },
+        { "line": "北総線", "destination": "羽田空港", "departure_time": "8:00", "arrival_time": "8:50" },
+        { "line": "北総線", "destination": "西馬込", "departure_time": "8:15", "arrival_time": "8:45" },
+        { "line": "北総線", "destination": "羽田空港", "departure_time": "8:30", "arrival_time": "9:20" },
+        { "line": "北総線", "destination": "羽田空港", "departure_time": "9:00", "arrival_time": "9:50" }
+      ]
+    },
+    {
+      "type": "weekend",
+      "trains": [
+        { "line": "北総線", "destination": "羽田空港", "departure_time": "6:30", "arrival_time": "7:20" },
+        { "line": "北総線", "destination": "西馬込", "departure_time": "7:00", "arrival_time": "7:30" },
+        { "line": "北総線", "destination": "羽田空港", "departure_time": "7:30", "arrival_time": "8:20" },
+        { "line": "北総線", "destination": "羽田空港", "departure_time": "8:00", "arrival_time": "8:50" },
+        { "line": "北総線", "destination": "西馬込", "departure_time": "8:30", "arrival_time": "9:00" },
+        { "line": "北総線", "destination": "羽田空港", "departure_time": "9:00", "arrival_time": "9:50" }
+      ]
+    }
+  ]
+}

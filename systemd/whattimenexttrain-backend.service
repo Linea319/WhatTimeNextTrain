@@ -1,0 +1,28 @@
+[Unit]
+Description=WhatTimeNextTrain Backend API Server
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/WhatTimeNextTrain/backend
+Environment=PYTHONPATH=/home/pi/WhatTimeNextTrain/backend
+Environment=FLASK_ENV=production
+ExecStartPre=/bin/sleep 10
+ExecStart=/home/pi/WhatTimeNextTrain/backend/venv/bin/python run.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# セキュリティ設定
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/pi/WhatTimeNextTrain/backend/logs
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
