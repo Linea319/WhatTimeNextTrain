@@ -15,12 +15,30 @@
       <div class="container">
         <div class="content-wrapper">
           
+          <!-- プロファイル選択 -->
+          <div class="profile-selector card mb-6">
+            <h2>📍 出発駅を選択</h2>
+            <div class="profile-buttons">
+              <button 
+                v-for="profile in profiles" 
+                :key="profile.name"
+                @click="selectProfile(profile.name)"
+                :class="['profile-button', { active: selectedProfile === profile.name }]"
+              >
+                <div class="profile-name">{{ profile.departure }}</div>
+                <div class="profile-destinations">
+                  {{ profile.destinations.map(d => d.station).join(', ') }}
+                </div>
+              </button>
+            </div>
+          </div>
+          
           <!-- エラー表示 -->
           <div v-if="error" class="error-card">
             <div class="card">
               <h2>⚠️ エラー</h2>
               <p>{{ error }}</p>
-              <button @click="fetchNextTrain" class="retry-button">
+              <button @click="fetchData" class="retry-button">
                 再試行
               </button>
             </div>
@@ -35,7 +53,7 @@
           </div>
 
           <!-- 次の列車情報 -->
-          <div v-else-if="nextTrainData" class="train-info">
+          <div v-else-if="nextTrainData && selectedProfile" class="train-info">
             
             <!-- 出発・到着時刻表示 -->
             <div class="time-display card mb-6">
@@ -53,7 +71,7 @@
                 <div class="time-item">
                   <div class="icon">🚉</div>
                   <div class="time-info">
-                    <div class="label">{{ nextTrainData.station_name || '駅' }}到着</div>
+                    <div class="label">{{ nextTrainData.departure_station || nextTrainData.station_name || '駅' }}到着</div>
                     <div class="time">{{ nextTrainData.arrival_time }}</div>
                   </div>
                 </div>
@@ -111,15 +129,24 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import type { NextTrainResponse } from './types/api'
 import { apiService } from './services/api'
 
+// プロファイル関連の型定義
+interface Profile {
+  name: string
+  departure: string
+  destinations: Array<{ station: string }>
+}
+
 // リアクティブデータ
 const currentTime = ref('')
 const nextTrainData = ref<NextTrainResponse | null>(null)
 const loading = ref(true)
 const error = ref('')
+const selectedProfile = ref('')
+const profiles = ref<Profile[]>([])
 
 // タイマーID
-let timeUpdateInterval: number | null = null
-let dataUpdateInterval: number | null = null
+let timeUpdateInterval: any = null
+let dataUpdateInterval: any = null
 
 /**
  * 現在時刻を更新
@@ -134,14 +161,34 @@ const updateCurrentTime = () => {
 }
 
 /**
+ * プロファイル一覧を取得
+ */
+const fetchProfiles = async () => {
+  try {
+    const data = await apiService.getProfiles()
+    profiles.value = data.profiles
+    
+    // 最初のプロファイルを自動選択
+    if (data.profiles.length > 0) {
+      selectedProfile.value = data.profiles[0].name
+    }
+  } catch (err) {
+    console.error('プロファイル取得エラー:', err)
+    error.value = 'プロファイルの取得に失敗しました'
+  }
+}
+
+/**
  * 次の列車情報を取得
  */
 const fetchNextTrain = async () => {
+  if (!selectedProfile.value) return
+  
   try {
     loading.value = true
     error.value = ''
     
-    const data = await apiService.getNextTrain()
+    const data = await apiService.getNextTrainByProfile(selectedProfile.value)
     
     if (data.error) {
       error.value = data.error
@@ -157,8 +204,48 @@ const fetchNextTrain = async () => {
 }
 
 /**
+ * データを取得（プロファイル + 次の列車）
+ */
+const fetchData = async () => {
+  await fetchProfiles()
+  await fetchNextTrain()
+}
+
+/**
+ * プロファイルを選択
+ */
+const selectProfile = (profileName: string) => {
+  selectedProfile.value = profileName
+  fetchNextTrain()
+}
+
+/**
  * コンポーネントマウント時の処理
  */
+onMounted(() => {
+  // 初期データ取得
+  fetchData()
+  
+  // 現在時刻の更新を開始
+  updateCurrentTime()
+  timeUpdateInterval = setInterval(updateCurrentTime, 1000)
+  
+  // データの定期更新を開始（1分毎）
+  dataUpdateInterval = setInterval(fetchNextTrain, 60000)
+})
+
+/**
+ * コンポーネント削除時の処理
+ */
+onUnmounted(() => {
+  if (timeUpdateInterval) {
+    clearInterval(timeUpdateInterval)
+  }
+  if (dataUpdateInterval) {
+    clearInterval(dataUpdateInterval)
+  }
+})
+
 onMounted(() => {
   // 初期データ取得
   fetchNextTrain()
@@ -367,6 +454,51 @@ onUnmounted(() => {
 .no-train h2 {
   color: #f39c12;
   margin-bottom: 1rem;
+}
+
+.profile-selector {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.profile-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.profile-button {
+  flex: 1 1 150px;
+  padding: 1rem;
+  background: rgba(103, 126, 234, 0.2);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.profile-button.active {
+  background: rgba(103, 126, 234, 0.4);
+}
+
+.profile-name {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.profile-destinations {
+  font-size: 0.9rem;
+  color: #666;
 }
 
 /* レスポンシブデザイン */

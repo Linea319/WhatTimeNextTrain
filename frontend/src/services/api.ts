@@ -9,7 +9,8 @@ import type {
   NextTrainResponse, 
   AllTrainsResponse, 
   ConfigResponse, 
-  HealthResponse 
+  HealthResponse,
+  ProfilesResponse,
 } from '../types/api';
 
 class ApiService {
@@ -70,6 +71,33 @@ class ApiService {
    */
   async getConfig(): Promise<ConfigResponse> {
     const response = await this.api.get<ConfigResponse>('/config');
+    return response.data;
+  }
+
+  /**
+   * プロファイル一覧を取得
+   * 利用可能なプロファイル一覧を取得します
+   */
+  async getProfiles(): Promise<ProfilesResponse> {
+    const response = await this.api.get<ProfilesResponse>('/profiles');
+    return response.data;
+  }
+
+  /**
+   * プロファイル指定で次の列車情報を取得
+   * 指定されたプロファイルから次に乗車できる列車の情報を取得します
+   */
+  async getNextTrainByProfile(profileName: string): Promise<NextTrainResponse> {
+    const response = await this.api.get<NextTrainResponse>(`/profile/${profileName}/next-train`);
+    return response.data;
+  }
+
+  /**
+   * プロファイル指定で全列車情報を取得
+   * 指定されたプロファイルの時刻表全列車情報を取得します
+   */
+  async getTrainsByProfile(profileName: string): Promise<AllTrainsResponse> {
+    const response = await this.api.get<AllTrainsResponse>(`/profile/${profileName}/trains`);
     return response.data;
   }
 }

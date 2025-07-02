@@ -16,6 +16,7 @@ export interface Train {
 export interface NextTrainResponse {
   current_time: string;
   departure_time: string;
+  departure_station: string;
   arrival_time: string;
   time_until_departure: number;
   station_name: string;
@@ -42,4 +43,17 @@ export interface ConfigResponse {
 export interface HealthResponse {
   status: string;
   timestamp: string;
+}
+
+// プロファイル情報の型
+export interface Profile {
+  name: string;
+  departure: string;
+  destinations: Array<{ station: string; duration_minutes?: string }>;
+}
+
+// プロファイル一覧APIレスポンスの型
+export interface ProfilesResponse {
+  profiles: Profile[];
+  error?: string;
 }

@@ -60,8 +60,43 @@ class TrainSchedule:
         with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
         
-        trains = [Train(**train_data) for train_data in data['trains']]
-        return cls(station=data['station'], trains=trains)
+        return cls.from_dict(data)
+    
+    @classmethod
+    def from_dict(cls, data: dict) -> 'TrainSchedule':
+        """
+        辞書データから時刻表を読み込み
+        
+        Args:
+            data: 時刻表データ辞書
+            
+        Returns:
+            TrainSchedule: 時刻表オブジェクト
+        """
+        # 新しい構造（schedules）に対応
+        if 'schedules' in data:
+            trains = []
+            current_time = datetime.now()
+            is_weekend = current_time.weekday() >= 5  # 土曜日(5)・日曜日(6)
+            
+            for schedule in data['schedules']:
+                schedule_type = schedule.get('type', '')
+                
+                # 平日/土休日の判定
+                if (is_weekend and schedule_type == 'weekend') or (not is_weekend and schedule_type == 'weekday'):
+                    for train_data in schedule.get('trains', []):
+                        trains.append(Train(**train_data))
+                    break
+            
+            return cls(station=data.get('depature', ''), trains=trains)
+        
+        # 旧構造（trains）に対応
+        elif 'trains' in data:
+            trains = [Train(**train_data) for train_data in data['trains']]
+            return cls(station=data.get('station', ''), trains=trains)
+        
+        else:
+            raise ValueError("無効なデータ構造です")
     
     def get_trains_after_time(self, target_time: time) -> List[Train]:
         """

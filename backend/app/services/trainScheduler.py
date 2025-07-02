@@ -15,16 +15,18 @@ class TrainScheduler:
     時刻表データの管理と次の列車情報の提供を行います
     """
     
-    def __init__(self, schedule_file_path: str, home_to_station_minutes: int, preparation_minutes: int):
+    def __init__(self, schedule_file_path: str = None, schedule_data: dict = None, home_to_station_minutes: int = 0, preparation_minutes: int = 0):
         """
         コンストラクタ
         
         Args:
-            schedule_file_path: 時刻表JSONファイルのパス
+            schedule_file_path: 時刻表JSONファイルのパス（オプショナル）
+            schedule_data: 時刻表データ辞書（オプショナル）
             home_to_station_minutes: 自宅から駅までの時間（分）
             preparation_minutes: 準備時間（分）
         """
         self.schedule_file_path = schedule_file_path
+        self.schedule_data = schedule_data
         self.train_schedule: Optional[TrainSchedule] = None
         self.time_calculator = TimeCalculator(home_to_station_minutes, preparation_minutes)
         self.load_schedule()
@@ -33,10 +35,17 @@ class TrainScheduler:
         """
         時刻表データを読み込み
         
-        JSONファイルから時刻表データを読み込みます
+        JSONファイルまたは辞書データから時刻表データを読み込みます
         """
         try:
-            self.train_schedule = TrainSchedule.from_json_file(self.schedule_file_path)
+            if self.schedule_data is not None:
+                # 辞書データから読み込み
+                self.train_schedule = TrainSchedule.from_dict(self.schedule_data)
+            elif self.schedule_file_path is not None:
+                # JSONファイルから読み込み
+                self.train_schedule = TrainSchedule.from_json_file(self.schedule_file_path)
+            else:
+                raise ValueError("schedule_file_path または schedule_data のいずれかが必要です")
         except Exception as e:
             print(f"時刻表の読み込みエラー: {e}")
             self.train_schedule = None
