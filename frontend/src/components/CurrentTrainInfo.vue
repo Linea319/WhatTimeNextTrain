@@ -74,8 +74,8 @@ defineProps<Props>()
 }
 
 .time-value.primary {
-  font-size: 1.6rem;
   color: #677EEA;
+  font-weight: 900;
 }
 
 .time-value .warning {
@@ -84,12 +84,22 @@ defineProps<Props>()
 }
 
 @media (max-width: 768px) {
+  .section-title {
+    font-size: 0.8rem;
+  }
+
+  .time-info-item {
+    gap : 0.1rem;
+    padding: 0.25rem;
+    margin-bottom: 0.25rem;
+  }
+
   .time-value {
-    font-size: 1.2rem;
+    font-size: 0.6rem;
   }
   
-  .time-value.primary {
-    font-size: 1.3rem;
+  .time-label{
+    font-size: 0.6rem;
   }
 }
 </style>

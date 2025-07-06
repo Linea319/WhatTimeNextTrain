@@ -46,7 +46,7 @@ defineProps<Props>()
 
 .section-title {
   font-size: 1.1rem;
-  font-weight: 600;
+  font-weight: 800;
   margin-bottom: 1rem;
   color: #333;
   display: flex;
@@ -57,10 +57,17 @@ defineProps<Props>()
 .train-details-compact {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.25rem;
 }
 
 .train-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  background: rgba(75, 193, 164, 0.05);
+  border-radius: 6px;
+  border-left: 3px solid rgba(75, 193, 164, 0.3);
   margin-bottom: 1rem;
 }
 
@@ -71,15 +78,15 @@ defineProps<Props>()
 }
 
 .train-value {
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-size: 1.4rem;
+  font-weight: 700;
   color: #333;
+  font-family: 'Courier New', monospace;
 }
 
 .train-value.primary {
-  font-size: 1.4rem;
   color: #4BC1A4;
-  font-family: 'Courier New', monospace;
+  font-weight: 900;
 }
 
 .no-train-info {
@@ -90,8 +97,19 @@ defineProps<Props>()
 }
 
 @media (max-width: 768px) {
-  .train-value.primary {
-    font-size: 1.2rem;
+  .section-title {
+    font-size: 0.8rem;
+  }
+  .train-info-item {
+    gap: 0.1rem;
+    padding: 0.25rem;
+    margin-bottom: 0.25rem;
+  }
+  .train-value {
+    font-size: 0.6rem;
+  }
+  .train-label {
+    font-size: 0.6rem;
   }
 }
 </style>
