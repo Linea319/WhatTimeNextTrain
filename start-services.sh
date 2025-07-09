@@ -359,7 +359,8 @@ start_services() {
     # ブラウザを自動で開く（Raspberry Piでデスクトップ環境がある場合）
     if [ "$AUTO_BROWSER" = true ] && command -v xdg-open >/dev/null 2>&1; then
         print_info "🚀 ブラウザを起動中..."
-        xdg-open http://localhost:3000 &
+        #xdg-open http://localhost:3000 &
+        chromium-browser --start-fullscreen http://localhost:3000 &
     fi
 }
 
