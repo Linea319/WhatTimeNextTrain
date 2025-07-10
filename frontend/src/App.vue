@@ -4,7 +4,7 @@
     <header class="header">
       <div class="container">
         <div class="header-content">
-          <h1 class="app-title">🚃 WhatTimeNextTrain</h1>
+          <h1 class="app-title">WhatTimeNextTrain</h1>
           
           <!-- ヘッダー内プロファイル選択 -->
           <div class="header-profile-section">
@@ -419,11 +419,6 @@ onUnmounted(() => {
 
 /* レスポンシブデザイン */
 @media (max-width: 768px) {
-  .header-content {
-    flex-direction: column;
-    gap: 0.75rem;
-    text-align: center;
-  }
   
   .app-title {
     font-size: 1.3rem;
