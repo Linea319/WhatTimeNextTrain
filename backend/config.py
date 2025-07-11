@@ -18,6 +18,9 @@ class Config:
     
     # アプリケーション設定
     PREPARATION_MINUTES = 3       # 準備時間（分）
+
+    # デフォルト値
+    HOME_TO_STATION_MINUTES = 10  # 自宅から駅までの徒歩時間（分）
     
     # データファイルパス
     TRAIN_SCHEDULE_PATH = os.path.join(os.path.dirname(__file__), 'data', 'train_schedule.json')

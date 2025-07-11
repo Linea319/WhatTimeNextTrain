@@ -85,15 +85,14 @@ class TrainSchedule:
                 # 平日/土休日の判定
                 if (is_weekend and schedule_type == 'weekend') or (not is_weekend and schedule_type == 'weekday'):
                     for train_data in schedule.get('trains', []):
+                        def format_time(time_str: str) -> str:
+                            return time_str.split(':')[0].zfill(2) + ':' + time_str.split(':')[1].zfill(2)
+                        train_data['departure_time'] = format_time(train_data['departure_time'])
+                        train_data['arrival_time'] = format_time(train_data['arrival_time'])
                         trains.append(Train(**train_data))
                     break
             
             return cls(station=data.get('depature', ''), trains=trains)
-        
-        # 旧構造（trains）に対応
-        elif 'trains' in data:
-            trains = [Train(**train_data) for train_data in data['trains']]
-            return cls(station=data.get('station', ''), trains=trains)
         
         else:
             raise ValueError("無効なデータ構造です")
