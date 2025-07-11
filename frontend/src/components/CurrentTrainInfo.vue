@@ -1,16 +1,16 @@
 <template>
   <div class="current-train-section">
-    <h3 class="section-title">🏠 今から出発</h3>
+    <h3 class="section-title">🏠 自宅から</h3>
     <div class="time-info-item">
-      <div class="time-label">列車発車時刻</div>
+      <div class="time-label">次の列車発車時刻</div>
       <div class="time-value primary">{{ departureTime || '--:--' }}</div>
     </div>
     <div class="time-info-item">
-      <div class="time-label">駅到着時刻</div>
+      <div class="time-label">目標到着時刻</div>
       <div class="time-value">{{ arrivalTime }}</div>
     </div>
     <div class="time-info-item">
-      <div class="time-label">駅での待ち時間</div>
+      <div class="time-label">自宅出発まで</div>
       <div class="time-value">
         <span v-if="waitingTime > 0">
           {{ waitingTime }}分
