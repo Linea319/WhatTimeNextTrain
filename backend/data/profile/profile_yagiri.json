@@ -1,5 +1,6 @@
 {
     "depature": "矢切",
+    "walking_time_minutes": "20",
     "schedule_file": "train_schedule_yagiri.json",
     "my_destinations": [
         {

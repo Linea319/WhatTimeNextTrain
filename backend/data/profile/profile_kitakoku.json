@@ -1,5 +1,6 @@
 {
     "depature":"北国分",
+    "walking_time_minutes":"13",
     "schedule_file":"train_schedule_kitakoku.json",
     "my_destinations":[
         {

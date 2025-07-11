@@ -118,11 +118,15 @@ def get_next_train_by_profile(profile_name):
         profile_data = load_profile(profile_name)
         schedule_data = load_schedule_from_profile(profile_data)
         
+        # プロファイルから移動時間を取得（デフォルト値も設定）
+        walking_time = int(profile_data.get('walking_time_minutes', current_app.config['HOME_TO_STATION_MINUTES']))
+        preparation_time = int(profile_data.get('preparation_minutes', current_app.config['PREPARATION_MINUTES']))
+        
         # 専用のTrainSchedulerインスタンスを作成
         scheduler = TrainScheduler(
             schedule_data=schedule_data,
-            home_to_station_minutes=current_app.config['HOME_TO_STATION_MINUTES'],
-            preparation_minutes=current_app.config['PREPARATION_MINUTES']
+            home_to_station_minutes=walking_time,
+            preparation_minutes=preparation_time
         )
         
         next_train_info = scheduler.get_next_train_info()
@@ -174,11 +178,15 @@ def get_trains_by_profile(profile_name):
         profile_data = load_profile(profile_name)
         schedule_data = load_schedule_from_profile(profile_data)
         
+        # プロファイルから移動時間を取得（デフォルト値も設定）
+        walking_time = int(profile_data.get('walking_time_minutes', current_app.config['HOME_TO_STATION_MINUTES']))
+        preparation_time = int(profile_data.get('preparation_minutes', current_app.config['PREPARATION_MINUTES']))
+        
         # 専用のTrainSchedulerインスタンスを作成
         scheduler = TrainScheduler(
             schedule_data=schedule_data,
-            home_to_station_minutes=current_app.config['HOME_TO_STATION_MINUTES'],
-            preparation_minutes=current_app.config['PREPARATION_MINUTES']
+            home_to_station_minutes=walking_time,
+            preparation_minutes=preparation_time
         )
         
         trains = scheduler.get_all_trains()

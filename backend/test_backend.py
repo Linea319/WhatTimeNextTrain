@@ -68,7 +68,7 @@ def test_arrival_time_calculation():
         print(f"  → 家を出る時刻: {departure_time}")
         print(f"  → 駅到着時刻: {arrival_time}")
         
-        # 検証: departure_time + home_to_station_minutes = arrival_time
+        # 検証: departure_time + home_to_station_minutes + preparatiom = arrival_time
         departure_datetime = datetime.combine(datetime.today(), departure_time)
         expected_arrival = departure_datetime + timedelta(minutes=home_to_station)
         expected_arrival_time = expected_arrival.time()
@@ -126,12 +126,12 @@ def test_train_scheduler():
                     schedule_data = json.load(f)
                 
                 # TrainSchedulerを初期化（プロファイルの設定値を使用）
-                home_to_station = profile_data.get('home_to_station_minutes', 10)
-                preparation = profile_data.get('preparation_minutes', 5)
+                walking_time = int(profile_data.get('walking_time_minutes', 10))
+                preparation = int(profile_data.get('preparation_minutes', 5))
                 
                 scheduler = TrainScheduler(
                     schedule_data=schedule_data,
-                    home_to_station_minutes=home_to_station,
+                    home_to_station_minutes=walking_time,
                     preparation_minutes=preparation
                 )
                 
@@ -147,7 +147,7 @@ def test_train_scheduler():
                     print(f"出発まで: {next_train.time_until_departure}分")
                     if next_train.train:
                         print(f"列車: {next_train.train.line} {next_train.train.destination} {next_train.train.departure_time}")
-                        print(f"arrival_time確認: 家を出る({next_train.departure_time}) + 所要時間({home_to_station}分) = 駅到着({next_train.arrival_time})")
+                        print(f"arrival_time確認: 家を出る({next_train.departure_time}) + 所要時間({walking_time}分) = 駅到着({next_train.arrival_time})")
                 else:
                     print("次の列車情報を取得できませんでした")
             else:

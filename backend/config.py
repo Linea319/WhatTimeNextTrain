@@ -17,9 +17,7 @@ class Config:
     CORS_ORIGINS = ['http://localhost:3000', 'http://localhost:5173']
     
     # アプリケーション設定
-    STATION_NAME = "北国分"
-    HOME_TO_STATION_MINUTES = 10  # 自宅から駅までの徒歩時間（分）
-    PREPARATION_MINUTES = 5       # 準備時間（分）
+    PREPARATION_MINUTES = 3       # 準備時間（分）
     
     # データファイルパス
     TRAIN_SCHEDULE_PATH = os.path.join(os.path.dirname(__file__), 'data', 'train_schedule.json')
