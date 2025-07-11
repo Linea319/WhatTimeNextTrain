@@ -31,14 +31,6 @@ export interface AllTrainsResponse {
   error?: string;
 }
 
-// アプリケーション設定APIレスポンスの型
-export interface ConfigResponse {
-  station_name: string;
-  home_to_station_minutes: number;
-  preparation_minutes: number;
-  update_interval_seconds: number;
-}
-
 // ヘルスチェックAPIレスポンスの型
 export interface HealthResponse {
   status: string;

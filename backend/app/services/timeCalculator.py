@@ -78,7 +78,8 @@ class TimeCalculator:
             
             # 現在時刻より後に出発できる列車を見つけた場合
             if departure_time > current_time_obj:
-                arrival_time = self.calculate_arrival_time(departure_time)
+                # 駅への到着時刻を計算（家を出発してから駅に着く時刻）
+                station_arrival_time = self.calculate_arrival_time(departure_time)
                 
                 # 出発まであと何分かを計算
                 departure_datetime = datetime.combine(datetime.today(), departure_time)
@@ -87,7 +88,7 @@ class TimeCalculator:
                 return NextTrainInfo(
                     current_time=current_time.strftime('%H:%M'),
                     departure_time=departure_time.strftime('%H:%M'),
-                    arrival_time=arrival_time.strftime('%H:%M'),
+                    arrival_time=station_arrival_time.strftime('%H:%M'),
                     train=train,
                     time_until_departure=time_until_departure
                 )

@@ -8,7 +8,6 @@ import axios, { AxiosInstance } from 'axios';
 import type { 
   NextTrainResponse, 
   AllTrainsResponse, 
-  ConfigResponse, 
   HealthResponse,
   ProfilesResponse,
 } from '../types/api';
@@ -44,33 +43,6 @@ class ApiService {
    */
   async healthCheck(): Promise<HealthResponse> {
     const response = await this.api.get<HealthResponse>('/health');
-    return response.data;
-  }
-
-  /**
-   * 次の列車情報を取得
-   * 現在時刻から次に乗車できる列車の情報を取得します
-   */
-  async getNextTrain(): Promise<NextTrainResponse> {
-    const response = await this.api.get<NextTrainResponse>('/next-train');
-    return response.data;
-  }
-
-  /**
-   * 全ての列車情報を取得
-   * 時刻表の全列車情報を取得します
-   */
-  async getAllTrains(): Promise<AllTrainsResponse> {
-    const response = await this.api.get<AllTrainsResponse>('/trains');
-    return response.data;
-  }
-
-  /**
-   * アプリケーション設定を取得
-   * 移動時間などの設定情報を取得します
-   */
-  async getConfig(): Promise<ConfigResponse> {
-    const response = await this.api.get<ConfigResponse>('/config');
     return response.data;
   }
 
