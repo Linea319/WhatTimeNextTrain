@@ -116,165 +116,14 @@ print_success "✅ ログディレクトリを作成しました"
 
 # 実行権限の設定
 chmod +x start-services.sh
-print_success "✅ 起動スクリプトに実行権限を設定しました"
-
-# Termux用起動スクリプトの作成
-print_info "🔧 Termux用起動スクリプトを作成中..."
-
-cat > start-termux.sh << 'EOF'
-#!/bin/bash
-
-# WhatTimeNextTrain Termux起動スクリプト
-
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_DIR="$SCRIPT_DIR"
-BACKEND_DIR="$PROJECT_DIR/backend"
-FRONTEND_DIR="$PROJECT_DIR/frontend"
-LOGS_DIR="$PROJECT_DIR/logs"
-PIDS_DIR="$PROJECT_DIR/pids"
-
-print_color() {
-    local color_code=$1
-    local message=$2
-    echo -e "\e[${color_code}m${message}\e[0m"
-}
-
-print_info() {
-    print_color "36" "$1"
-}
-
-print_success() {
-    print_color "32" "$1"
-}
-
-print_warning() {
-    print_color "33" "$1"
-}
-
-print_error() {
-    print_color "31" "$1"
-}
-
-start_backend() {
-    print_info "🐍 バックエンドを起動中..."
-    cd "$BACKEND_DIR"
-    source venv/bin/activate
-    nohup python run.py > "$LOGS_DIR/backend.log" 2>&1 &
-    echo $! > "$PIDS_DIR/backend.pid"
-    print_success "✅ バックエンドが起動しました (PID: $!)"
-}
-
-start_frontend() {
-    print_info "📱 フロントエンドを起動中..."
-    cd "$FRONTEND_DIR"
-    nohup npm run dev > "$LOGS_DIR/frontend.log" 2>&1 &
-    echo $! > "$PIDS_DIR/frontend.pid"
-    print_success "✅ フロントエンドが起動しました (PID: $!)"
-}
-
-stop_service() {
-    local service_name=$1
-    local pid_file="$PIDS_DIR/${service_name}.pid"
-    
-    if [ -f "$pid_file" ]; then
-        local pid=$(cat "$pid_file")
-        if kill -0 "$pid" 2>/dev/null; then
-            kill "$pid"
-            rm -f "$pid_file"
-            print_success "✅ ${service_name}を停止しました"
-        else
-            print_warning "⚠️  ${service_name}は既に停止しています"
-            rm -f "$pid_file"
-        fi
-    else
-        print_warning "⚠️  ${service_name}のPIDファイルが見つかりません"
-    fi
-}
-
-show_status() {
-    print_info "📊 サービス状態:"
-    
-    # バックエンド状態確認
-    if [ -f "$PIDS_DIR/backend.pid" ]; then
-        local backend_pid=$(cat "$PIDS_DIR/backend.pid")
-        if kill -0 "$backend_pid" 2>/dev/null; then
-            print_success "  バックエンド: 実行中 (PID: $backend_pid)"
-        else
-            print_error "  バックエンド: 停止中 (PIDファイルは存在)"
-        fi
-    else
-        print_error "  バックエンド: 停止中"
-    fi
-    
-    # フロントエンド状態確認
-    if [ -f "$PIDS_DIR/frontend.pid" ]; then
-        local frontend_pid=$(cat "$PIDS_DIR/frontend.pid")
-        if kill -0 "$frontend_pid" 2>/dev/null; then
-            print_success "  フロントエンド: 実行中 (PID: $frontend_pid)"
-        else
-            print_error "  フロントエンド: 停止中 (PIDファイルは存在)"
-        fi
-    else
-        print_error "  フロントエンド: 停止中"
-    fi
-}
-
-case "$1" in
-    start)
-        print_info "🚀 WhatTimeNextTrainを起動中..."
-        start_backend
-        sleep 3
-        start_frontend
-        echo ""
-        show_status
-        ;;
-    stop)
-        print_info "🛑 WhatTimeNextTrainを停止中..."
-        stop_service "frontend"
-        stop_service "backend"
-        echo ""
-        show_status
-        ;;
-    restart)
-        print_info "🔄 WhatTimeNextTrainを再起動中..."
-        stop_service "frontend"
-        stop_service "backend"
-        sleep 2
-        start_backend
-        sleep 3
-        start_frontend
-        echo ""
-        show_status
-        ;;
-    status)
-        show_status
-        ;;
-    logs)
-        if [ "$2" = "backend" ]; then
-            print_info "📋 バックエンドログ:"
-            tail -f "$LOGS_DIR/backend.log"
-        elif [ "$2" = "frontend" ]; then
-            print_info "📋 フロントエンドログ:"
-            tail -f "$LOGS_DIR/frontend.log"
-        else
-            print_info "使用方法: $0 logs [backend|frontend]"
-        fi
-        ;;
-    *)
-        echo "使用方法: $0 {start|stop|restart|status|logs}"
-        echo ""
-        echo "  start   - サービスを開始"
-        echo "  stop    - サービスを停止"
-        echo "  restart - サービスを再起動"
-        echo "  status  - サービス状態を確認"
-        echo "  logs    - ログを表示 (backend または frontend を指定)"
-        exit 1
-        ;;
-esac
-EOF
-
-chmod +x start-termux.sh
-print_success "✅ Termux用起動スクリプトを作成しました"
+if [ -f "start-termux.sh" ]; then
+    chmod +x start-termux.sh
+    print_success "✅ 起動スクリプトに実行権限を設定しました"
+else
+    print_warning "⚠️  start-termux.sh が見つかりません"
+    print_info "   高機能なTermux用起動スクリプトを使用する場合は、"
+    print_info "   別途 start-termux.sh ファイルを配置してください"
+fi
 
 # Termux自動起動設定スクリプトの作成
 print_info "🔧 Termux自動起動設定スクリプトを作成中..."
@@ -368,12 +217,20 @@ fi
 print_info ""
 
 print_info "🚀 Termux起動コマンド:"
-print_info "  ./start-termux.sh start      # サービス開始"
-print_info "  ./start-termux.sh stop       # サービス停止"
-print_info "  ./start-termux.sh restart    # サービス再起動"
-print_info "  ./start-termux.sh status     # サービス状態確認"
-print_info "  ./start-termux.sh logs backend   # バックエンドログ確認"
-print_info "  ./start-termux.sh logs frontend  # フロントエンドログ確認"
+if [ -f "start-termux.sh" ]; then
+    print_info "  ./start-termux.sh start      # サービス開始"
+    print_info "  ./start-termux.sh stop       # サービス停止"
+    print_info "  ./start-termux.sh restart    # サービス再起動"
+    print_info "  ./start-termux.sh status     # サービス状態確認"
+    print_info "  ./start-termux.sh logs backend   # バックエンドログ確認"
+    print_info "  ./start-termux.sh logs frontend  # フロントエンドログ確認"
+    print_info "  ./start-termux.sh wakelock on     # Wakelock有効化"
+    print_info "  ./start-termux.sh help            # 詳細なヘルプ表示"
+else
+    print_info "  ./start-services.sh start   # サービス開始（基本版）"
+    print_info "  ./start-services.sh stop    # サービス停止（基本版）"
+    print_warning "   高機能版を使用するには start-termux.sh を配置してください"
+fi
 
 echo ""
 print_warning "🔧 自動起動設定（オプション）:"
@@ -391,4 +248,14 @@ echo ""
 print_success "✨ WhatTimeNextTrain のTermuxセットアップが完了しました！"
 print_info ""
 print_info "🔥 今すぐ起動するには:"
-print_info "   ./start-termux.sh start"
+if [ -f "start-termux.sh" ]; then
+    print_info "   ./start-termux.sh start"
+    print_info ""
+    print_info "💡 高機能版の特徴:"
+    print_info "   - Wakelock制御機能"
+    print_info "   - 詳細なプロセス監視"
+    print_info "   - リアルタイムログ表示"
+    print_info "   - エラーハンドリング強化"
+else
+    print_info "   ./start-services.sh start"
+fi
