@@ -14,7 +14,7 @@ class Config:
     DEBUG = True
     
     # CORS設定
-    CORS_ORIGINS = ['http://localhost:3000', 'http://localhost:5173']
+    CORS_ORIGINS = ['http://localhost:3000', 'http://192.168.1.21:3000']
     
     # アプリケーション設定
     PREPARATION_MINUTES = 3       # 準備時間（分）
