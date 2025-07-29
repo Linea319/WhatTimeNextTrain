@@ -1,19 +1,19 @@
 {
     "depature": "矢切",
-    "walking_time_minutes": "20",
+    "walking_time_minutes": 12,
     "schedule_file": "train_schedule_yagiri.json",
     "my_destinations": [
         {
             "station": "日本橋",
-            "duration_minutes": "25"
+            "duration_minutes": 25
         },
         {
             "station": "新橋",
-            "duration_minutes": "30"
+            "duration_minutes": 30
         },
         {
             "station": "羽田空港",
-            "duration_minutes": "50"
+            "duration_minutes": 50
         }
     ]
 }
