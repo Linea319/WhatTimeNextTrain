@@ -9,7 +9,6 @@ export interface Train {
   line: string;
   destination: string;
   departure_time: string;
-  arrival_time: string;
 }
 
 // 次の列車情報APIレスポンスの型
@@ -17,7 +16,6 @@ export interface NextTrainResponse {
   current_time: string;
   departure_time: string;
   departure_station: string;
-  arrival_time: string;
   time_until_departure: number;
   station_name: string;
   train: Train | null;

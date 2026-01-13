@@ -17,21 +17,14 @@ class Train:
         line: 路線名
         destination: 行き先
         departure_time: 出発時刻
-        arrival_time: 到着時刻
     """
     line: str
     destination: str
     departure_time: str
-    arrival_time: str
     
     def get_departure_time_obj(self) -> time:
         """出発時刻をtimeオブジェクトとして取得"""
         hour, minute = map(int, self.departure_time.split(':'))
-        return time(hour, minute)
-    
-    def get_arrival_time_obj(self) -> time:
-        """到着時刻をtimeオブジェクトとして取得"""
-        hour, minute = map(int, self.arrival_time.split(':'))
         return time(hour, minute)
 
 @dataclass
@@ -88,7 +81,6 @@ class TrainSchedule:
                         def format_time(time_str: str) -> str:
                             return time_str.split(':')[0].zfill(2) + ':' + time_str.split(':')[1].zfill(2)
                         train_data['departure_time'] = format_time(train_data['departure_time'])
-                        train_data['arrival_time'] = format_time(train_data['arrival_time'])
                         trains.append(Train(**train_data))
                     break
             
@@ -120,12 +112,10 @@ class NextTrainInfo:
     Attributes:
         current_time: 現在時刻
         departure_time: 出発すべき時刻
-        arrival_time: 駅到着時刻
         train: 乗車する列車情報
         time_until_departure: 出発まであと何分か
     """
     current_time: str
     departure_time: str
-    arrival_time: str
     train: Optional[Train]
     time_until_departure: int

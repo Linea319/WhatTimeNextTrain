@@ -142,7 +142,6 @@ def get_next_train_by_profile(profile_name):
             'departure_station': profile_data['depature'],
             'current_time': next_train_info.current_time,
             'departure_time': next_train_info.departure_time,
-            'arrival_time': next_train_info.arrival_time,
             'time_until_departure': next_train_info.time_until_departure,
             'train': None
         }
@@ -151,8 +150,7 @@ def get_next_train_by_profile(profile_name):
             response_data['train'] = {
                 'line': next_train_info.train.line,
                 'destination': next_train_info.train.destination,
-                'departure_time': next_train_info.train.departure_time,
-                'arrival_time': next_train_info.train.arrival_time
+                'departure_time': next_train_info.train.departure_time
             }
         
         return jsonify(response_data)
