@@ -35,7 +35,7 @@ $AllowedColors = @(
     "DarkGray", "Blue", "Green", "Cyan", "Red", "Magenta", "Yellow", "White"
 )
 
-function Write-ColorOutput(){
+function Write-ColorOutput() {
     param([string]$Message = ".", [string]$Color = "White")
     if ($AllowedColors -notcontains $Color) {
         $Color = "White"
@@ -61,7 +61,8 @@ function Stop-Services {
                     $targetProcesses += $proc
                     Write-ColorOutput "  対象プロセス発見: PID $($proc.Id) - $commandLine" "Gray"
                 }
-            } catch {
+            }
+            catch {
                 # WMI取得に失敗した場合はスキップ
             }
         }
@@ -69,10 +70,12 @@ function Stop-Services {
         if ($targetProcesses.Count -gt 0) {
             $targetProcesses | Stop-Process -Force
             Write-ColorOutput "✅ バックエンド (Python) を停止しました ($($targetProcesses.Count)個のプロセス)" "Green"
-        } else {
+        }
+        else {
             Write-ColorOutput "ℹ️ run.pyを実行中のPythonプロセスが見つかりませんでした" "Yellow"
         }
-    } else {
+    }
+    else {
         Write-ColorOutput "ℹ️ 実行中のPythonプロセスが見つかりませんでした" "Yellow"
     }
     
@@ -81,7 +84,8 @@ function Stop-Services {
     if ($nodeProcesses) {
         $nodeProcesses | Stop-Process -Force
         Write-ColorOutput "✅ フロントエンド (Node.js) を停止しました" "Green"
-    } else {
+    }
+    else {
         Write-ColorOutput "ℹ️ 実行中のNode.jsプロセスが見つかりませんでした" "Yellow"
     }
     
@@ -96,30 +100,44 @@ function Start-Backend {
         throw "❌ バックエンドディレクトリが見つかりません: $BackendPath"
     }
     
-    # Pythonの実行可能ファイルを検索
-    $PythonExe = $null
-    $PythonCandidates = @(
-        "python",
-        "python3",
-        "python3.11",
-        "C:\Users\$env:USERNAME\AppData\Local\Microsoft\WindowsApps\python3.11.exe"
-    )
-    
-    foreach ($candidate in $PythonCandidates) {
-        try {
-            $version = & $candidate --version 2>$null
-            if ($LASTEXITCODE -eq 0) {
-                $PythonExe = $candidate
-                Write-ColorOutput "✅ Python found: $candidate ($version)" "Green"
-                break
-            }
-        } catch {
-            continue
+    # uvが利用可能か確認
+    try {
+        $uvVersion = & uv --version 2>$null
+        if ($LASTEXITCODE -eq 0) {
+            Write-ColorOutput "✅ uv found: $uvVersion" "Green"
+        }
+        else {
+            throw "uv not found"
         }
     }
+    catch {
+        throw "❌ uvが見つかりません。https://docs.astral.sh/uv/getting-started/installation/ からインストールしてください。"
+    }
     
-    if (-not $PythonExe) {
-        throw "❌ Pythonが見つかりません。Pythonをインストールしてください。"
+    # venv の確認・作成
+    $VenvPath = Join-Path $BackendPath "venv"
+    if (-not (Test-Path $VenvPath)) {
+        Write-ColorOutput "📦 仮想環境を作成中..." "Yellow"
+        & uv venv $VenvPath
+        if ($LASTEXITCODE -ne 0) {
+            throw "❌ 仮想環境の作成に失敗しました"
+        }
+        Write-ColorOutput "✅ 仮想環境を作成しました" "Green"
+    }
+    
+    # 仮想環境のアクティベートと依存関係のインストール
+    Write-ColorOutput "📦 依存関係をインストール中..." "Yellow"
+    $ActivateScript = Join-Path $VenvPath "Scripts\Activate.ps1"
+    & cmd.exe /c "$ActivateScript && uv pip install -r requirements.txt"
+    if ($LASTEXITCODE -ne 0) {
+        throw "❌ 依存関係のインストール失敗"
+    }
+    Write-ColorOutput "✅ 依存関係をインストールしました" "Green"
+    
+    # Pythonの実行可能ファイルを検索（venv内のものを使用）
+    $PythonExe = Join-Path $VenvPath "Scripts\python.exe"
+    if (-not (Test-Path $PythonExe)) {
+        throw "❌ Python実行ファイルが見つかりません: $PythonExe"
     }
     
     # バックエンドを別プロセスで起動（ウィンドウを表示）
@@ -138,7 +156,8 @@ function Start-Backend {
                 Write-ColorOutput "✅ バックエンドサーバーが起動しました (http://localhost:5000)" "Green"
                 return $BackendJob
             }
-        } catch {
+        }
+        catch {
             # 接続失敗は正常（まだ起動中）
         }
         $retryCount++
@@ -160,10 +179,12 @@ function Start-Frontend {
         $nodeVersion = & node --version 2>$null
         if ($LASTEXITCODE -eq 0) {
             Write-ColorOutput "✅ Node.js found: $nodeVersion" "Green"
-        } else {
+        }
+        else {
             throw "Node.js not found"
         }
-    } catch {
+    }
+    catch {
         throw "❌ Node.jsが見つかりません。Node.jsをインストールしてください。"
     }
     
@@ -172,10 +193,12 @@ function Start-Frontend {
         $npmVersion = & npm --version 2>$null
         if ($LASTEXITCODE -eq 0) {
             Write-ColorOutput "✅ npm found: $npmVersion" "Green"
-        } else {
+        }
+        else {
             throw "npm not found"
         }
-    } catch {
+    }
+    catch {
         throw "❌ npmが見つかりません。Node.jsを再インストールしてください。"
     }
     
@@ -214,7 +237,8 @@ function Start-Frontend {
                 Write-ColorOutput "✅ フロントエンドサーバーが起動しました (http://localhost:3000)" "Green"
                 return $FrontendJob
             }
-        } catch {
+        }
+        catch {
             # 接続失敗は正常（まだ起動中）
         }
         $retryCount++
@@ -273,11 +297,13 @@ function Main {
                     Write-ColorOutput "⚠️ フロントエンドプロセスが終了しました" "Red"
                 }
             }
-        } catch [System.Management.Automation.PipelineStoppedException] {
+        }
+        catch [System.Management.Automation.PipelineStoppedException] {
             Write-ColorOutput "🛑 ユーザーによって中断されました" "Yellow"
         }
         
-    } catch {
+    }
+    catch {
         Write-ColorOutput "❌ エラーが発生しました: $($_.Exception.Message)" "Red"
         Write-ColorOutput "📋 ログファイルを確認してください:" "Yellow"
         Write-ColorOutput "  $BackendErrorLogFile" "Gray"

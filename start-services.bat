@@ -42,16 +42,41 @@ if not exist "%FRONTEND_PATH%" (
 echo 🚀 バックエンド (Python + Flask) を起動中...
 cd /d "%BACKEND_PATH%"
 
-rem Pythonの確認と起動
-python --version >nul 2>&1
+rem uvの確認
+uv --version >nul 2>&1
 if errorlevel 1 (
-    echo ❌ Pythonが見つかりません。Pythonをインストールしてください。
+    echo ❌ uvが見つかりません。以下からインストールしてください:
+    echo    https://docs.astral.sh/uv/getting-started/installation/
     pause
     exit /b 1
 )
+echo ✅ uv is installed
+
+rem 仮想環境の作成（存在しない場合のみ）
+if not exist "%BACKEND_PATH%\venv" (
+    echo 📦 仮想環境を作成中...
+    uv venv venv
+    if errorlevel 1 (
+        echo ❌ 仮想環境の作成に失敗しました
+        pause
+        exit /b 1
+    )
+    echo ✅ 仮想環境を作成しました
+)
+
+rem 仮想環境のアクティベートと依存関係のインストール
+echo 📦 依存関係をインストール中...
+call venv\Scripts\activate.bat
+uv pip install -r requirements.txt
+if errorlevel 1 (
+    echo ❌ 依存関係のインストール失敗
+    pause
+    exit /b 1
+)
+echo ✅ 依存関係をインストールしました
 
 rem バックエンドを新しいウィンドウで起動
-start "WhatTimeNextTrain Backend" cmd /k "python run.py"
+start "WhatTimeNextTrain Backend" cmd /k "cd /d %BACKEND_PATH% && venv\Scripts\activate.bat && python run.py"
 
 echo ✅ バックエンドを起動しました (http://localhost:5000)
 echo.

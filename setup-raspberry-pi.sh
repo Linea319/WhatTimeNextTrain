@@ -61,6 +61,17 @@ sudo apt update && sudo apt upgrade -y
 print_info "🐍 Python3環境をセットアップ中..."
 sudo apt install -y python3 python3-pip python3-venv python3-dev
 
+# uvのインストール
+print_info "📦 uvをインストール中..."
+if ! command -v uv >/dev/null 2>&1; then
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    # PATH設定
+    export PATH="$HOME/.local/bin:$PATH"
+    print_success "✅ uvをインストールしました"
+else
+    print_success "✅ uvは既にインストール済み: $(uv --version)"
+fi
+
 # Node.jsのインストール（NodeSourceから最新LTS版）
 if ! command -v node >/dev/null 2>&1; then
     print_info "📱 Node.js LTSをインストール中..."
@@ -74,16 +85,15 @@ fi
 print_info "🐍 バックエンド Python環境をセットアップ中..."
 cd "$PROJECT_DIR/backend"
 
-# 仮想環境の作成
+# 仮想環境の作成（uv使用）
 if [ ! -d "venv" ]; then
-    python3 -m venv venv
+    uv venv venv
     print_success "✅ Python仮想環境を作成しました"
 fi
 
 # 仮想環境をアクティベートして依存関係をインストール
 source venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
+uv pip install -r requirements.txt
 deactivate
 
 print_success "✅ バックエンド依存関係のインストール完了"

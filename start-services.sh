@@ -191,44 +191,41 @@ start_backend() {
         return 1
     fi
     
-    # Python実行ファイルを検索
-    for python_cmd in python3 python python3.11; do
-        if command -v "$python_cmd" >/dev/null 2>&1; then
-            PYTHON_CMD="$python_cmd"
-            break
-        fi
-    done
-    
-    if [ -z "$PYTHON_CMD" ]; then
-        print_error "❌ Pythonが見つかりません。Pythonをインストールしてください。"
+    # uvが利用可能か確認
+    if ! command -v uv >/dev/null 2>&1; then
+        print_error "❌ uvが見つかりません。以下からインストールしてください:"
+        print_error "   https://docs.astral.sh/uv/getting-started/installation/"
         return 1
     fi
+    print_success "✅ uv found: $(uv --version)"
     
-    print_success "✅ Python found: $PYTHON_CMD ($($PYTHON_CMD --version))"
-    
-    # 依存関係の確認
-    if [ ! -f "$BACKEND_PATH/requirements.txt" ]; then
-        print_error "❌ requirements.txtが見つかりません"
-        return 1
-    fi
-    
-    # 仮想環境の確認と作成（オプション）
+    # 仮想環境の作成（存在しない場合のみ）
     if [ ! -d "$BACKEND_PATH/venv" ]; then
-        print_info "📦 Python仮想環境を作成中..."
+        print_info "📦 仮想環境を作成中..."
         cd "$BACKEND_PATH"
-        "$PYTHON_CMD" -m venv venv
-        source venv/bin/activate
-        pip install -r requirements.txt
-        cd "$PROJECT_ROOT"
-    else
-        cd "$BACKEND_PATH"
-        source venv/bin/activate
-        cd "$PROJECT_ROOT"
+        uv venv venv
+        if [ $? -ne 0 ]; then
+            print_error "❌ 仮想環境の作成に失敗しました"
+            return 1
+        fi
+        print_success "✅ 仮想環境を作成しました"
     fi
     
-    # バックエンドを起動
+    # 仮想環境のアクティベートと依存関係のインストール
+    print_info "📦 依存関係をインストール中..."
     cd "$BACKEND_PATH"
-    nohup "$PYTHON_CMD" run.py > "$BACKEND_LOG" 2>&1 &
+    source venv/bin/activate
+    uv pip install -r requirements.txt
+    if [ $? -ne 0 ]; then
+        print_error "❌ 依存関係のインストール失敗"
+        return 1
+    fi
+    deactivate
+    print_success "✅ 依存関係をインストールしました"
+    
+    # バックエンドを起動（仮想環境内で実行）
+    cd "$BACKEND_PATH"
+    nohup venv/bin/python run.py > "$BACKEND_LOG" 2>&1 &
     echo $! > "$BACKEND_PID"
     cd "$PROJECT_ROOT"
     
