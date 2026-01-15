@@ -126,6 +126,10 @@ npm run dev
 - ✅ リアルタイム時刻表示
 - ✅ 自動データ更新（1分毎）
 - ✅ エラーハンドリング
+- ✅ **本番環境モード（開発/本番の自動切り替え）**
+- ✅ **環境変数による設定管理**
+- ✅ **systemd サービス対応**
+- ✅ **nginx リバースプロキシ対応**
 
 ## 🚀 クイックスタート
 
@@ -144,9 +148,24 @@ start-services.bat
 chmod +x setup-raspberry-pi.sh
 ./setup-raspberry-pi.sh
 
-# サービス起動
+# 開発環境で起動
 ./start-services.sh start
+
+# 本番環境で起動
+./start-services.sh start --production
 ```
+
+### 本番環境デプロイ（Ubuntu/Debian サーバー）
+```bash
+# 本番環境用の起動
+./start-services.sh start --production
+
+# または、systemdサービスとして起動
+sudo systemctl start whattimenexttrain-backend
+sudo systemctl start whattimenexttrain-frontend
+```
+
+詳細な本番環境デプロイ方法は [PRODUCTION_GUIDE.md](PRODUCTION_GUIDE.md) を参照してください。
 
 ### 自動化機能
 - ✅ **ワンクリック起動** - バックエンドとフロントエンドを同時起動

@@ -24,7 +24,7 @@
 <script setup lang="ts">
 interface Props {
   departureTime?: string
-  arrivalTime: string
+  arrivalTime?: string
   waitingTime: number
 }
 

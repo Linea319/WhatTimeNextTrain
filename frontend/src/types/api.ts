@@ -9,6 +9,7 @@ export interface Train {
   line: string;
   destination: string;
   departure_time: string;
+  arrival_time?: string;
 }
 
 // 次の列車情報APIレスポンスの型

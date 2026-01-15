@@ -53,7 +53,7 @@ create_directories() {
 
 # 使用方法を表示
 show_usage() {
-    echo "使用方法: $0 [start|stop|restart|status]"
+    echo "使用方法: $0 [start|stop|restart|status] [オプション]"
     echo ""
     echo "コマンド:"
     echo "  start   - サービスを起動"
@@ -62,9 +62,15 @@ show_usage() {
     echo "  status  - サービスの状態を確認"
     echo ""
     echo "オプション:"
-    echo "  --auto-browser  - 起動後にブラウザを自動で開く"
-    echo "  --no-frontend   - フロントエンドを起動しない"
-    echo "  --no-backend    - バックエンドを起動しない"
+    echo "  --production      - 本番環境モードで起動（開発用サーバーではなくプロダクション設定を使用）"
+    echo "  --auto-browser    - 起動後にブラウザを自動で開く"
+    echo "  --no-frontend     - フロントエンドを起動しない"
+    echo "  --no-backend      - バックエンドを起動しない"
+    echo ""
+    echo "使用例:"
+    echo "  $0 start                          # 開発環境で起動"
+    echo "  $0 start --production             # 本番環境で起動"
+    echo "  $0 start --production --no-frontend  # 本番環境でバックエンドのみ起動"
 }
 
 # プロセスIDを確認
@@ -223,9 +229,16 @@ start_backend() {
     deactivate
     print_success "✅ 依存関係をインストールしました"
     
+    # 実行モードを設定
+    local app_mode="DEV"
+    if [ "$PRODUCTION_MODE" = true ]; then
+        app_mode="PRODUCTION"
+        print_warning "⚠️ 本番環境モードで起動します"
+    fi
+    
     # バックエンドを起動（仮想環境内で実行）
     cd "$BACKEND_PATH"
-    nohup venv/bin/python run.py > "$BACKEND_LOG" 2>&1 &
+    APP_MODE=$app_mode venv/bin/python run.py > "$BACKEND_LOG" 2>&1 &
     echo $! > "$BACKEND_PID"
     cd "$PROJECT_ROOT"
     
@@ -249,7 +262,11 @@ start_frontend() {
         return 0
     fi
     
-    print_info "🚀 フロントエンド (Vue.js + Vite) を起動中..."
+    if [ "$PRODUCTION_MODE" = true ]; then
+        print_info "🚀 フロントエンド (Vue.js + Vite ビルド) を起動中..."
+    else
+        print_info "🚀 フロントエンド (Vue.js + Vite 開発サーバー) を起動中..."
+    fi
     
     # ディレクトリ確認
     if [ ! -d "$FRONTEND_PATH" ]; then
@@ -287,11 +304,32 @@ start_frontend() {
         print_success "✅ 依存関係のインストールが完了しました"
     fi
     
-    # フロントエンドを起動
-    cd "$FRONTEND_PATH"
-    nohup npm run dev > "$FRONTEND_LOG" 2>&1 &
-    echo $! > "$FRONTEND_PID"
-    cd "$PROJECT_ROOT"
+    # 本番環境と開発環境で処理を分岐
+    if [ "$PRODUCTION_MODE" = true ]; then
+        # 本番環境：ビルドしたファイルを提供
+        print_info "🔨 フロントエンドをビルド中..."
+        cd "$FRONTEND_PATH"
+        npm run build
+        if [ $? -ne 0 ]; then
+            print_error "❌ ビルドに失敗しました"
+            return 1
+        fi
+        print_success "✅ ビルドが完了しました"
+        
+        # Node.jsの軽量HTTPサーバーを起動
+        cd "$PROJECT_ROOT"
+        npx -y http-server "$FRONTEND_PATH/dist" -p 3000 -c-1 > "$FRONTEND_LOG" 2>&1 &
+        echo $! > "$FRONTEND_PID"
+        cd "$PROJECT_ROOT"
+        
+        print_warning "⚠️ 本番環境ではnginxの使用をお勧めします（より高速で安全です）"
+    else
+        # 開発環境：開発サーバーを起動
+        cd "$FRONTEND_PATH"
+        npm run dev > "$FRONTEND_LOG" 2>&1 
+        echo $! > "$FRONTEND_PID"
+        cd "$PROJECT_ROOT"
+    fi
     
     # 起動確認
     print_info "⏳ フロントエンドサーバーの起動を待機中..."
@@ -311,6 +349,14 @@ start_frontend() {
 start_services() {
     print_header "🚃 WhatTimeNextTrain 起動スクリプト (Linux/Raspberry Pi)"
     print_header "==============================================="
+    
+    # 本番環境の表示
+    if [ "$PRODUCTION_MODE" = true ]; then
+        print_warning "⚠️ 本番環境（PRODUCTION）モードで起動します"
+        print_warning "   - バックエンド: デバッグモード無効"
+        print_warning "   - フロントエンド: ビルド済みファイルを提供"
+        echo ""
+    fi
     
     # 既に実行中かチェック
     if check_pid "$BACKEND_PID" >/dev/null || check_pid "$FRONTEND_PID" >/dev/null; then
@@ -341,6 +387,13 @@ start_services() {
     echo ""
     print_success "🎉 全てのサービスが起動しました！"
     print_success "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    
+    if [ "$PRODUCTION_MODE" = true ]; then
+        print_warning "🏭 本番環境モード"
+    else
+        print_info "🔧 開発環境モード"
+    fi
+    
     print_info "🌐 フロントエンド: http://localhost:3000"
     print_info "🔧 バックエンドAPI: http://localhost:5000"
     print_info "📋 ヘルスチェック: http://localhost:5000/api/health"
@@ -368,6 +421,10 @@ main() {
     # コマンドライン引数を解析
     while [[ $# -gt 0 ]]; do
         case $1 in
+            --production)
+                PRODUCTION_MODE=true
+                shift
+                ;;
             --auto-browser)
                 AUTO_BROWSER=true
                 shift

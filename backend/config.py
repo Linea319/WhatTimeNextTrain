@@ -9,12 +9,20 @@ from datetime import timedelta
 class Config:
     """アプリケーションの基本設定クラス"""
     
+    # 環境モード
+    MODE = os.environ.get('APP_MODE', 'DEV').upper()
+    
     # Flask設定
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
-    DEBUG = True
+    DEBUG = MODE != 'PRODUCTION'
     
-    # CORS設定
-    CORS_ORIGINS = ['http://localhost:3000', 'http://192.168.1.21:3000']
+    # CORS設定 - 環境に応じて切り替え
+    if MODE == 'PRODUCTION':
+        # 本番環境：ローカルホストのみ許可（Raspberry Pi用）
+        CORS_ORIGINS = ['http://localhost:3000', 'http://localhost']
+    else:
+        # 開発環境：複数のホスト許可
+        CORS_ORIGINS = ['http://localhost:3000', 'http://192.168.1.21:3000', 'http://127.0.0.1:3000']
     
     # アプリケーション設定
     PREPARATION_MINUTES = 3       # 準備時間（分）

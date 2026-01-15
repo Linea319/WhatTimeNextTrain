@@ -74,8 +74,7 @@
               <!-- 左側：現在時刻で間に合う列車情報 -->
               <div class="main-info-card">
                 <CurrentTrainInfo 
-                  :departure-time="nextTrainData.train?.departure_time"
-                  :arrival-time="nextTrainData.arrival_time"
+                  :departure-time="nextTrainData.departure_time"
                   :waiting-time="nextTrainData.time_until_departure"
                 />
               </div>

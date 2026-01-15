@@ -26,7 +26,7 @@ interface Train {
   line: string
   destination: string
   departure_time: string
-  arrival_time: string
+  arrival_time?: string
 }
 
 interface Props {
