@@ -19,10 +19,10 @@ class Config:
     # CORS設定 - 環境に応じて切り替え
     if MODE == 'PRODUCTION':
         # 本番環境：ローカルホストのみ許可（Raspberry Pi用）
-        CORS_ORIGINS = ['http://localhost:3000', 'http://localhost']
+        CORS_ORIGINS = ['http://localhost:3000', 'http://localhost', 'http://192.168.1.100:3000']
     else:
         # 開発環境：複数のホスト許可
-        CORS_ORIGINS = ['http://localhost:3000', 'http://192.168.1.21:3000', 'http://127.0.0.1:3000']
+        CORS_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000']
     
     # アプリケーション設定
     PREPARATION_MINUTES = 3       # 準備時間（分）
